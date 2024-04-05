@@ -1,0 +1,40 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap");
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+body {
+  font-family: "Poppins", sans-serif;
+  background-color: rgba(32, 34, 35, 0.02);
+}
+
+input {
+  font-weight: 400;
+}
+
+.form__input {
+  border: none;
+  border-bottom: 1px solid black;
+  font-weight: normal;
+  font-weight: 400;
+}
+.form__input:focus,
+.form__input:focus-visible,
+.form__input:focus-within {
+  box-shadow: none !important;
+  border-bottom: 1px solid black !important;
+}
+
+select:not([size]) {
+  background-image: none;
+}
+
+.flex__center {
+  @apply flex justify-center items-center;
+}
