@@ -1,9 +1,9 @@
-import jwt from 'jsonwebtoken'
-import bcrypt from 'bcrypt'
-import { validationResult } from 'express-validator';
-import TOKEN_DETAILS from '../config/index.js';
+import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
+import { validationResult } from "express-validator";
+import TOKEN_DETAILS from "../config/index.js";
 import fetch from "node-fetch";
-import User from '../models/user.model.js';
+import User from "../models/user.model.js";
 
 const register = async (req, res) => {
   try {
@@ -54,7 +54,6 @@ const login = async (req, res) => {
     } else {
       const { email, password } = req.body;
       const userExist = await User.findOne({ email });
-      console.log('userExist: ', userExist);
 
       if (!userExist) {
         return res.status(400).send({
@@ -66,7 +65,6 @@ const login = async (req, res) => {
           userExist.password
         );
 
-        console.log('isPasswordMatch: ', isPasswordMatch);
         if (isPasswordMatch) {
           res.status(200).send({
             success: true,
@@ -74,13 +72,13 @@ const login = async (req, res) => {
             refresh_token: await userExist.generateRefreshToken(),
             message: "user login successfully",
             userId: userExist._id.toString(),
-            user:{
+            user: {
               _id: userExist._id.toString(),
-              name:userExist?.name,
-              email:userExist?.email,
+              name: userExist?.name,
+              email: userExist?.email,
               shop: userExist?.shop,
-              access_token: userExist?.access_token
-            }
+              access_token: userExist?.access_token,
+            },
           });
         } else {
           return res.status(401).send({
@@ -90,7 +88,6 @@ const login = async (req, res) => {
       }
     }
   } catch (error) {
-    console.log('error: ', error?.message);
     res.status(500).send({ msg: error });
   }
 };
@@ -148,88 +145,93 @@ const refreshToken = async (req, res) => {
   }
 };
 
-
-const verifyStoreCredentials = async (req,res) => {
+const verifyStoreCredentials = async (req, res) => {
   try {
-
-    console.log('req.user.id: ', req.user.userId);
-
-   const {store , access_token} = req.body
-   if(store && access_token){
-    const response = await fetch(`https://${store}/admin/api/2024-01/shop.json`,{
-       headers:{
-         'X-Shopify-Access-Token': access_token
+    const { store, access_token } = req.body;
+    if (store && access_token) {
+      const response = await fetch(
+        `https://${store}/admin/api/2024-01/shop.json`,
+        {
+          headers: {
+            "X-Shopify-Access-Token": access_token,
+          },
         }
-    })
-    
-    if(response?.status === 200){
+      );
 
-      const { shop } = await response.json()
+      if (response?.status === 200) {
+        const { shop } = await response.json();
 
-      const shop_name = shop.myshopify_domain ? shop.myshopify_domain.replace('.myshopify.com','') : ''
+        const shop_name = shop.myshopify_domain
+          ? shop.myshopify_domain.replace(".myshopify.com", "")
+          : "";
 
-      res.status(200).send({
-            shop: shop_name,
-            code:  shop.myshopify_domain === store ? 'SUCCESS' : 'INAVALID_STORE',
-            access_token:  access_token
-      })
-    }else if(response?.status === 401){
-      res.status(200).send({
-            code: 'AUTHORIZATION'
-          })
-    }
-   }
-    
-  } catch (error) {
-    if(error?.code === 'ENOTFOUND'){
-      res.send({
-        code: 'NOT_FOUND'
-      })
-    }
-  }
-}
-
-const getStoreConfiguration = async (req,res) => {
-  try {
-
-   const { shop , access_token} = req.body
-   if(shop && access_token){
-    const response = await fetch(`https://${shop}.myshopify.com/admin/api/2024-01/shop.json`,{
-      headers:{
-        'X-Shopify-Access-Token': access_token
+        res.status(200).send({
+          shop: shop_name,
+          code: shop.myshopify_domain === store ? "SUCCESS" : "INAVALID_STORE",
+          access_token: access_token,
+        });
+      } else if (response?.status === 401) {
+        res.status(200).send({
+          code: "AUTHORIZATION",
+        });
+      } else {
+        res.status(200).send({
+          code: "AUTHORIZATION",
+        });
       }
-    })
-    
-    console.log('response?.status === 200: ', response?.status === 200);
-    if(response?.status === 200){
-
-      const { shop:shop_data } = await response.json()
-      res.status(200).send({
-        currency: shop_data?.currency,
-        code:  shop_data?.myshopify_domain === `${shop}.myshopify.com` ? 'SUCCESS' : 'INAVALID_STORE',
-    })
-    }else if(response?.status === 401){
-      res.status(200).send({
-            code: 'AUTHORIZATION'
-          })
     }
-   }
-    
   } catch (error) {
-    if(error?.code === 'ENOTFOUND'){
+    res.send({
+      code: "NOT_FOUND",
+    });
+  }
+};
+
+const getStoreConfiguration = async (req, res) => {
+  try {
+    const { shop, access_token } = req.body;
+    if (shop && access_token) {
+      const response = await fetch(
+        `https://${shop}.myshopify.com/admin/api/2024-01/shop.json`,
+        {
+          headers: {
+            "X-Shopify-Access-Token": access_token,
+          },
+        }
+      );
+      if (response?.status === 200) {
+        const { shop: shop_data } = await response.json();
+        res.status(200).send({
+          currency: shop_data?.currency,
+          code:
+            shop_data?.myshopify_domain === `${shop}.myshopify.com`
+              ? "SUCCESS"
+              : "INAVALID_STORE",
+        });
+      } else if (response?.status === 401) {
+        res.status(200).send({
+          code: "AUTHORIZATION",
+        });
+      }
+    }
+  } catch (error) {
+    if (error?.code === "ENOTFOUND") {
       res.send({
-        code: 'NOT_FOUND'
-      })
+        code: "NOT_FOUND",
+      });
     }
   }
-}
+};
 
 const updateUser = async (req, res) => {
   try {
-    const {shop,access_token} = req.body
+    const { shop, access_token } = req.body;
 
-    if(shop){
-      const userUpdated = await User.findByIdAndUpdate({ _id: req.user.userId },{shop,access_token:access_token});
+    if (shop) {
+      const userUpdated = await User.findByIdAndUpdate(
+        { _id: req.user.userId },
+        { shop, access_token: access_token }
+      );
       if (!userUpdated) {
         return res.status(400).send({
           message: "User not found",
@@ -240,8 +242,8 @@ const updateUser = async (req, res) => {
           user: userUpdated,
         });
       }
-    }else{
-      res.send({message: 'store name is required'})
+    } else {
+      res.send({ message: "store name is required" });
     }
   } catch (error) {
     console.log(error, "error");
@@ -249,22 +251,23 @@ const updateUser = async (req, res) => {
   }
 };
 
-
 const requestProducts = async (_req, res) => {
-  const { keyword, rating, currency, page = 1 } = _req.query
-  const session = res.locals.shopify.session
+  const { keyword, rating, currency, page = 1 } = _req.query;
+  const session = res.locals.shopify.session;
   if (!keyword) {
-    return res.status(400).json({ status: 'failed', data: 'keyword is required parameter' })
+    return res
+      .status(400)
+      .json({ status: "failed", data: "keyword is required parameter" });
   }
 
   const searchUrl = encodeURIComponent(
     `https://www.aliexpress.com/w/wholesale-${replaceSpaces(
       keyword,
-      '-',
-    )}.html?catId=0&SearchText=${replaceSpaces(keyword, '+')}&page=${page}${
-      rating === 'true' ? '&isFavorite=y' : ''
-    }`,
-  )
+      "-"
+    )}.html?catId=0&SearchText=${replaceSpaces(keyword, "+")}&page=${page}${
+      rating === "true" ? "&isFavorite=y" : ""
+    }`
+  );
 
   try {
     const result = await scrapflyService.requestScrapfly(searchUrl, {
@@ -272,51 +275,52 @@ const requestProducts = async (_req, res) => {
       parser: aliexpressListParser(),
       session,
       currency,
-    })
+    });
     return result
-      ? res.status(200).json({ status: 'success', data: result })
+      ? res.status(200).json({ status: "success", data: result })
       : res.status(500).json({
-          status: 'failed',
-          data: 'Not found',
-        })
+          status: "failed",
+          data: "Not found",
+        });
   } catch (error) {
-    return res.status(500).json({ status: 'failed', data: error.message })
+    return res.status(500).json({ status: "failed", data: error.message });
   }
-}
+};
 
 function aliexpressListParser(htmlRow) {
-  const $ = cheerio.load(htmlRow)
-  const scriptWithData = $('script:contains("window._dida_config_")').first().html()
-  const regex = /_init_data_\s*=\s*{\s*data:\s*({.+}) }/
-  const match = scriptWithData.match(regex)
+  const $ = cheerio.load(htmlRow);
+  const scriptWithData = $('script:contains("window._dida_config_")')
+    .first()
+    .html();
+  const regex = /_init_data_\s*=\s*{\s*data:\s*({.+}) }/;
+  const match = scriptWithData.match(regex);
   if (match) {
-    const jsonData = JSON.parse(match[1])
-    const rawData = jsonData.data.root.fields
+    const jsonData = JSON.parse(match[1]);
+    const rawData = jsonData.data.root.fields;
     if (rawData.pageInfo.success) {
       const products =
-        rawData.mods.itemList?.content.map(item => ({
+        rawData.mods.itemList?.content.map((item) => ({
           title: item.title?.displayTitle,
           price: item.prices?.salePrice?.formattedPrice,
           rating: item?.evaluation?.starRating,
           productId: item.productId,
-          image: 'https:' + item.image.imgUrl,
+          image: "https:" + item.image.imgUrl,
           detailsUrl:
-            'https://www.aliexpress.com' +
+            "https://www.aliexpress.com" +
             (item.productDetailUrl ?? `/item/${item.productId}.html`),
-        })) ?? []
+        })) ?? [];
       return {
         products: products,
         page: rawData.pageInfo.page,
         pageLimit: 60,
-      }
+      };
     } else {
-      return false
+      return false;
     }
   } else {
-    throw new Error('Data not found in script tag.')
+    throw new Error("Data not found in script tag.");
   }
 }
-
 
 export {
   login,
@@ -326,5 +330,5 @@ export {
   verifyStoreCredentials,
   updateUser,
   getStoreConfiguration,
-  requestProducts
+  requestProducts,
 };

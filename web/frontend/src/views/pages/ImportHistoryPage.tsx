@@ -61,7 +61,7 @@ const ImportHistoryPage = () => {
                     <button
                       type="button"
                       className="text-blue-500 w-max py-2 rounded-lg"
-                      onClick={() => declineProductImport(item?.id)}
+                      onClick={() => declineProductImport(item?.taskId)}
                     >
                       Decline
                     </button>
@@ -71,7 +71,7 @@ const ImportHistoryPage = () => {
                     <button
                       type="button"
                       className="text-red-500 w-max py-2 rounded-lg"
-                      onClick={() => retryProductImport(item?.id)}
+                      onClick={() => retryProductImport(item?.taskId)}
                     >
                       Retry
                     </button>

@@ -1,29 +1,32 @@
-// @ts-nocheck
-import { useEffect } from "react";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import Header from "../components/layout/Header";
 import { useAuth } from "../context/authContext";
 import { ToastContainerNotification } from "../utils/notifications";
+import { useEffect } from "react";
 
-const PublicRoutes = ({ children }: any) => {
+const PublicRoutes = () => {
   const { isLoggedIn, authUser } = useAuth();
   const route = useLocation().pathname;
-  const navigate = useNavigate();
   const isStoreLinked = authUser?.shop && authUser?.access_token;
 
+  const naviagte = useNavigate();
+
   useEffect(() => {
-    if (route === "/") {
-      navigate("/signup");
+    if (route === "/" && !isLoggedIn) {
+      naviagte("/signup");
     }
     if (isLoggedIn && isStoreLinked) {
-      navigate("/dashboard");
+      naviagte("/dashboard");
     }
-  }, [isStoreLinked, isLoggedIn, navigate, route]);
+    if (isLoggedIn && !isStoreLinked) {
+      naviagte("/verification");
+    }
+  }, [route, isLoggedIn, naviagte, isStoreLinked]);
 
   return (
     <>
       <Header />
-      <Outlet>{children}</Outlet>
+      <Outlet />
       <ToastContainerNotification />
     </>
   );

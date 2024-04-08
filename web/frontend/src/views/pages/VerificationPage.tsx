@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { useForm } from "react-hook-form";
 import TextError from "../../components/shared/TextError";
@@ -8,18 +8,21 @@ import { verifyCredentials } from "../../services/api/auth";
 import { sendNotification } from "../../utils/notifications";
 import { updateUser } from "../../services/api/user";
 import StaticPage from "../../components/shared/StaticPage";
+import { useAuth } from "../../context/authContext";
 
 const VerificationPage = () => {
   const {
     register,
     handleSubmit,
-    reset,
     formState: { errors },
   } = useForm();
 
+  const { isLoggedIn, authUser, setAuthUser } = useAuth();
   const isLoading = useSelector((state: RootState) => state.loading.isLoading);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const isStoreLinked = authUser?.shop && authUser?.access_token;
 
   const onSubmit = async (data: any) => {
     dispatch(startLoading());
@@ -33,13 +36,18 @@ const VerificationPage = () => {
         });
 
         if (data?.code === "SUCCESS") {
+          setAuthUser({
+            ...authUser,
+            shop: data?.shop,
+            access_token: data?.access_token,
+          });
+
           await updateUser({
             shop: data?.shop,
             access_token: data?.access_token,
           });
           sendNotification("success", "Store has been successfully linked");
           navigate("/dashboard");
-          reset();
         } else if (data?.code === "AUTHORIZATION") {
           sendNotification("error", "Please provie a valid access token");
         } else if (data?.code === "INAVALID_STORE") {
@@ -55,6 +63,10 @@ const VerificationPage = () => {
       }
     }
   };
+
+  if (!isLoggedIn && !isStoreLinked) {
+    return <Navigate to="/signup" />;
+  }
 
   return (
     <section className="p-25 w-full sm:max-w-[1000px] mx-auto flex__center flex-col mb-10 relative">

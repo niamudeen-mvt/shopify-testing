@@ -31,7 +31,7 @@ export default function SpecialInput({
           type={type}
           value={value}
           spellCheck={false}
-          className="border-none"
+          className="border-none max-w-[260px]"
           onChange={(event) => handleChange(event, id)}
         />
         <span className="flex__center w-max px-2">{suffix}</span>

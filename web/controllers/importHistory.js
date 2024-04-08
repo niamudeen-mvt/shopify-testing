@@ -5,11 +5,7 @@ import importRequestQueue, {
 
 class ImportHistoryController {
   static async requestImports(_req, res) {
-    // let { id } = res.locals.shopify.session;
-
     const { id } = _req.params;
-    console.log("_req.params: ", _req.params);
-
     try {
       let imports = await ProductImport.find({ storeId: id });
       return res.status(200).json({ status: "success", data: imports });
@@ -22,17 +18,14 @@ class ImportHistoryController {
     const { taskId } = _req.body;
     console.log("taskId: ", taskId);
     try {
-      // const job = await importRequestQueue.getJob(taskId);
-      // const importItem = await ProductImport.findById(job.data.importId);
-
-      const importItem = await ProductImport.findById({ _id: taskId });
-      console.log("importItem: ", importItem);
+      const job = await importRequestQueue.getJob(taskId);
+      const importItem = await ProductImport.findById(job.data.importId);
 
       if (!importItem) {
         throw new Error("Import does not exist");
       }
 
-      // await job.retry();
+      await job.retry();
       importItem.status = importStatus.QUEUE;
       await importItem.save();
 
@@ -45,11 +38,8 @@ class ImportHistoryController {
   static async stopImport(_req, res) {
     const { taskId } = _req.body;
     try {
-      // const job = await importRequestQueue.getJob(taskId);
-      // const importItem = await ProductImport.findById(job.data.importId);
-
-      const importItem = await ProductImport.findById({ _id: taskId });
-      console.log("importItem: ", importItem);
+      const job = await importRequestQueue.getJob(taskId);
+      const importItem = await ProductImport.findById(job.data.importId);
 
       if (!importItem) {
         return res
@@ -65,9 +55,9 @@ class ImportHistoryController {
           .json({ status: "failed", data: "Import already finished" });
       }
 
-      // await job.discard();
-      // await job.moveToFailed({ message: "Forcibly stopped" }, true);
-      // jobStatusMap.set(taskId, true);
+      await job.discard();
+      await job.moveToFailed({ message: "Forcibly stopped" }, true);
+      jobStatusMap.set(taskId, true);
 
       importItem.status = importStatus.FAILED;
       await importItem.save();

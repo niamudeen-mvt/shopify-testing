@@ -30,14 +30,12 @@ const LoginPage = () => {
     if (res?.status === 200) {
       setAuthUser(res?.data?.user);
       setIsLoggedIn(true);
-      sendNotification("success", res.data.message);
       storeAccessTokenLS(res.data.access_token);
       storeRefreshTokenLS(res.data.refresh_token);
 
       const { store, access_token } = res?.data?.user;
 
       const isStoreLinked = store && access_token;
-      console.log("isStoreLinked: ", isStoreLinked);
       if (isStoreLinked) {
         navigate("/dashboard");
       } else {

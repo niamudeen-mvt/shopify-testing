@@ -12,6 +12,10 @@ export default function Label({
       ? "bg-slate-200"
       : type === "failed"
       ? "bg-red-500 text-white"
+      : type === "in process"
+      ? "bg-yellow-300"
+      : type === "success"
+      ? "bg-green-300"
       : "bg-red-100";
 
   return (

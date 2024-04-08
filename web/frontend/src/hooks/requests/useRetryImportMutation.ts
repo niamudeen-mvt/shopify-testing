@@ -11,23 +11,7 @@ export const useRetryImportMutation = () => {
     },
     onSuccess: (response: any) => {
       if (response?.status === "success") {
-        queryClient.setQueryData(
-          "/import-history/request-imports",
-          (oldHistoryList: any) => {
-            const newHistoryList = oldHistoryList.data?.map((history: any) => {
-              if (history._id === response.data._id) {
-                return response.data;
-              }
-
-              return history;
-            });
-
-            return {
-              ...oldHistoryList,
-              data: newHistoryList,
-            };
-          }
-        );
+        queryClient.invalidateQueries("import history");
       }
     },
   });

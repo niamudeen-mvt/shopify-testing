@@ -1,22 +1,23 @@
-import { FaMoon } from "react-icons/fa";
-import { GoSun } from "react-icons/go";
 import { useTheme } from "../../context/themeContext";
 
 type Props = {
   children: React.ReactNode;
   isCenter?: boolean;
   themeCenter?: boolean;
-  isTransparent?:boolean
+  isTransparent?: boolean;
 };
 
-const ThemeContainer = ({ children, isCenter, themeCenter,isTransparent }: Props) => {
+const ThemeContainer = ({
+  children,
+  isCenter,
+  themeCenter,
+  isTransparent,
+}: Props) => {
   const { isThemeLight, setIsThemeLight } = useTheme();
   return (
     <section
       className={`min-h-screen w-full ${themeCenter ? "flex__center" : ""} ${
-        isThemeLight && !isTransparent ? "" :
-        isTransparent ? '':
-        "dark__mode"
+        isThemeLight && !isTransparent ? "" : isTransparent ? "" : "dark__mode"
       }`}
     >
       <div className={`custom__container  ${isCenter ? "flex__center" : ""}`}>

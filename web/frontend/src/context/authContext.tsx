@@ -13,11 +13,7 @@ type AuthStateTypes = {
     shop?: string;
     access_token?: string;
   };
-  setAuthUser: React.Dispatch<
-    React.SetStateAction<{
-      name: string;
-    }>
-  >;
+  setAuthUser: any;
 };
 
 const defaultContextValues: AuthStateTypes = {

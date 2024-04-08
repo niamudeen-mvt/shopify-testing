@@ -204,6 +204,7 @@ export default function ImportForm({
             handleChange={handleSpecialInput}
             errors={compareAtPriceMultiplierError}
             prefix="Compare at price at multiplier :"
+            suffix={<IoCloseOutline size={22} />}
           />
         </div>
         <div className="form-control mb-6 flex flex-col">

@@ -27,12 +27,10 @@ const importRequestQueue = new Queue("my-task-queue", {
     stalledInterval: 60 * 1000,
   },
 });
-console.log("importRequestQueue: ", importRequestQueue);
 
 export const jobStatusMap = new Map();
 
 importRequestQueue.on("failed", async function ({ data, id }) {
-  console.log("import failed");
   jobStatusMap.set(id, true);
 
   try {
@@ -49,19 +47,15 @@ importRequestQueue.on("failed", async function ({ data, id }) {
 });
 
 importRequestQueue.process(async ({ data, moveToFailed, id }) => {
-  console.log("import progress");
-
   jobStatusMap.set(id, false);
 
   const { importId, session, settings } = data;
-  console.log("data: ", data);
   let productImportHistory;
 
   const concurrency = Math.min(
     openAiService.concurrencyAllowed,
     scrapflyService.concurrencyAllowed
   );
-  console.log("concurrency: ", concurrency);
 
   try {
     console.log(`Import: ${importId} in progress`);
@@ -69,7 +63,6 @@ importRequestQueue.process(async ({ data, moveToFailed, id }) => {
     productImportHistory = await ProductImport.findById(importId);
     const client = new shopify.api.clients.Graphql({ session });
     const concurrentDelay = 60000;
-    console.log("productImportHistory: ", productImportHistory);
 
     if (!productImportHistory) {
       throw new Error("Import does not exist");
@@ -93,14 +86,12 @@ importRequestQueue.process(async ({ data, moveToFailed, id }) => {
 
     productImportHistory.taskId = id;
     productImportHistory.status = importStatus.IN_PROCESS;
-    console.log("productImportHistory: ", productImportHistory);
     await productImportHistory.save();
 
     const notFinishedProducts = productImportHistory?.products.filter(
       (product) => product.status !== productStatus.SUCCESS
     );
 
-    console.log("notFinishedProducts: ", notFinishedProducts);
     const promises = notFinishedProducts.map(({ productId }) => async () => {
       if (jobStatusMap.get(id)) {
         throw new Error("Job has been stopped.");
@@ -117,7 +108,6 @@ importRequestQueue.process(async ({ data, moveToFailed, id }) => {
           session,
         });
 
-        console.log("result: ", result);
         if (jobStatusMap.get(id)) {
           throw new Error("Job has been stopped.");
         }
@@ -133,7 +123,6 @@ importRequestQueue.process(async ({ data, moveToFailed, id }) => {
         if (jobStatusMap.get(id)) {
           throw new Error("Job has been stopped.");
         }
-        console.log("input: ", input);
 
         await createProduct(client, input);
 

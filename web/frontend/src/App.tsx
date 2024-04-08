@@ -18,11 +18,13 @@ const App = () => {
             <Route path="login" element={<LoginPage />} />
             <Route path="signup" element={<SignupPage />} />
             <Route path="verification" element={<VerificationPage />} />
+            <Route path="*" element={<SignupPage />} />
           </Route>
           <Route path="/" element={<ProtectedRoutes />}>
             <Route path="dashboard" element={<DashboardPage />} />
             <Route path="product-import" element={<ProductImportPage />} />
             <Route path="import-history" element={<ImportHistoryPage />} />
+            <Route path="*" element={<DashboardPage />} />
           </Route>
         </Routes>
       </BrowserRouter>
