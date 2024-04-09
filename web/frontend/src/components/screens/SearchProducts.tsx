@@ -64,7 +64,7 @@ export default function SearchProducts() {
         access_token: authUser?.access_token,
       });
     }
-  }, []);
+  }, [authUser?.shop && authUser?.access_token]);
 
   useEffect(() => {
     if (supportedCurrency) {

@@ -92,6 +92,7 @@ importRequestQueue.process(async ({ data, moveToFailed, id }) => {
       (product) => product.status !== productStatus.SUCCESS
     );
 
+    console.log("notFinishedProducts: ", notFinishedProducts);
     const promises = notFinishedProducts.map(({ productId }) => async () => {
       if (jobStatusMap.get(id)) {
         throw new Error("Job has been stopped.");

@@ -17,15 +17,15 @@ const ImportHistoryPage = () => {
   const { declineImport }: { declineImport: any } = useStopImportMutation();
   const { retryImport }: { retryImport: any } = useRetryImportMutation();
 
-  const declineProductImport = (id: any) => {
-    declineImport({
+  const declineProductImport = async (id: any) => {
+    await declineImport({
       taskId: id,
     });
     updateHistory();
   };
 
-  const retryProductImport = (id: any) => {
-    retryImport({
+  const retryProductImport = async (id: any) => {
+    await retryImport({
       taskId: id,
     });
     updateHistory();

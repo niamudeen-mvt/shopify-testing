@@ -18,5 +18,6 @@ export const useStoreCurrencyQuery = () => {
       }
     },
   });
+
   return { mutate, supportedCurrency: data?.data?.currency, currencyLoading };
 };

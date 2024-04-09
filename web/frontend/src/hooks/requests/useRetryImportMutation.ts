@@ -1,8 +1,8 @@
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation } from "react-query";
 import api from "../../utils/axios";
+import { sendNotification } from "../../utils/notifications";
 
 export const useRetryImportMutation = () => {
-  const queryClient = useQueryClient();
   const { mutate: retryImport, isLoading: retryLoading } = useMutation({
     mutationKey: ["retry import"],
     mutationFn: async (payload) => {
@@ -10,8 +10,11 @@ export const useRetryImportMutation = () => {
       return response;
     },
     onSuccess: (response: any) => {
-      if (response?.status === "success") {
-        queryClient.invalidateQueries("import history");
+      if (response?.status === 200) {
+        sendNotification(
+          "success",
+          "Import has been successfully added to the queue, click on the update button"
+        );
       }
     },
   });
